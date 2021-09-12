@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  {{>head}}
+  <body>
+    {{>nav}}
+    <main class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Užduočių sąrašas</h5>
+                    <table class="table">
+                        <tr>
+                            <th>Užduotis</th>
+                            <th>Statusas</th>
+                            <th>Prioritetas</th>
+                        </tr>
+                        {{#each tasks}}
+                        <tr>
+                            <td>{{task}}</td>
+                            <td>{{status}}</td>
+                            <td>{{priority}}</td>
+                        </tr>
+                        {{~/each}}
+                       
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+     {{>foot}}   
+  </body>
+</html>
