@@ -42,4 +42,49 @@ router.post("/service", (req, res, next) => {
     });
 });
 
+//redagavimas
+router.patch("/services/:id", async (req, res) => {
+  try {
+    //Pasiimame seną feedback iš duomenų bazės
+    const services = await Service.findById(req.params.id);
+
+    //Iš atsiųsto JSON failo, paimame atsiųstų atnaujinti laukų sąrašą (masyvą)
+    const updates = Object.keys(req.body);
+
+    //Laukai kuriuos galime keisti
+    const allowed = ["name", "description", "price"];
+
+    //Ar visi atsiusti laukai iš masyvo updates yra allowed masyve
+    if (!updates.every((update) => allowed.includes(update))) {
+      //Jei ne nutraukiame vykdymą ir gražiname 400 klaida
+      return res.status(400).send({ error: "Neteisingi atnaujinimo laukai" });
+    }
+
+    //Einame per visus atnaujinamus laukus
+    updates.forEach((update) => {
+      //Sename įraše pakeičiame laukų reikšmes naujomis
+      services[update] = req.body[update];
+    });
+    //Išsaugome naują įrašą į duomenų bazę
+    await services.save();
+
+    //Išsiunčiame pakeistą įrašą
+    res.send(services);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+router.delete("/services/:id", async (req, res) => {
+  try {
+    const services = await Service.findByIdAndDelete(req.params.id);
+    if (!services) {
+      return res.status(404).send({ error: "Irasas nerastas" });
+    }
+    return res.send(services);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 module.exports = router;

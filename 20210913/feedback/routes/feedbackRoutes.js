@@ -40,4 +40,50 @@ router.post("/feedback", (req, res, next) => {
     });
 });
 
+//redagavimas
+//asinchronine f-ja
+router.patch("/feedback/:id", async (req, res) => {
+  try {
+    //Pasiimame seną feedback iš duomenų bazės
+    const feedback = await Feedback.findById(req.params.id);
+
+    //Iš atsiųsto JSON failo, paimame atsiųstų atnaujinti laukų sąrašą (masyvą)
+    const updates = Object.keys(req.body);
+
+    //Laukai kuriuos galime keisti
+    const allowed = ["name", "email", "text"];
+
+    //Ar visi atsiusti laukai iš masyvo updates yra allowed masyve
+    if (!updates.every((update) => allowed.includes(update))) {
+      //Jei ne nutraukiame vykdymą ir gražiname 400 klaida
+      return res.status(400).send({ error: "Neteisingi atnaujinimo laukai" });
+    }
+
+    //Einame per visus atnaujinamus laukus
+    updates.forEach((update) => {
+      //Sename įraše pakeičiame laukų reikšmes naujomis
+      feedback[update] = req.body[update];
+    });
+    //Išsaugome naują įrašą į duomenų bazę
+    await feedback.save();
+
+    //Išsiunčiame pakeistą įrašą
+    res.send(feedback);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+router.delete("/feedback/:id", async (req, res) => {
+  try {
+    const feedback = await Feedback.findByIdAndDelete(req.params.id);
+    if (!feedback) {
+      return res.status(404).send({ error: "Irasas nerastas" });
+    }
+    return res.send(feedback);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 module.exports = router;
